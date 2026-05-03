@@ -16,27 +16,32 @@ This repository is configured to use PostgreSQL. To run locally, you will need a
 4. Run `npx prisma db push` to generate the schema.
 5. Run `npm run dev`
 
-## Deployment to Railway (Mandatory)
+## Deployment
 
-1. **Push to GitHub**:
-   - Create a new blank repository on GitHub.
-   - Run the following commands in your terminal to push this code:
-     ```bash
-     git branch -M main
-     git remote add origin https://github.com/your-username/your-repo-name.git
-     git push -u origin main
-     ```
+### Option A: Deployment to Vercel (Recommended for Next.js)
+1. **Push to GitHub**: Push this repository to your GitHub account.
+2. **Deploy on Vercel**: 
+   - Go to [Vercel](https://vercel.com/) and import your GitHub repository.
+3. **Database Setup**:
+   - In Vercel, go to the **Storage** tab and create a **Prisma Postgres** database.
+   - Vercel will automatically inject the `DATABASE_URL` into your environment variables.
+4. **Environment Variables**:
+   - Go to **Settings > Environment Variables** and add:
+     - `NEXTAUTH_SECRET`: Add a long random string (e.g., `my_super_secret_key_12345!`).
+     - `NEXTAUTH_URL`: Enter your Vercel public domain (e.g., `https://your-app.vercel.app`).
+5. **Redeploy**: Go to the **Deployments** tab and click **Redeploy** to ensure the database and variables are loaded correctly.
 
-2. **Deploy on Railway**:
-   - Go to [Railway.app](https://railway.app/) and log in.
-   - Click **New Project** -> **Deploy from GitHub repo**.
-   - Select the repository you just pushed.
-   - Click **Add a Service** -> **Database** -> **Add PostgreSQL**.
-   - Go to your Web App service settings -> **Variables**.
-   - Railway will automatically detect the database and you can click **Add Reference** to add `DATABASE_URL` linking to the Postgres database.
-   - Add another variable: `NEXTAUTH_SECRET` with a long random string.
-   - Add `NEXTAUTH_URL` and set it to your deployed Railway domain (e.g. `https://your-app.up.railway.app`).
-   - The app will build automatically. The build command `prisma generate && prisma db push && next build` is already configured in `package.json` to ensure the database schema is created on deploy.
+### Option B: Deployment to Railway
+1. **Push to GitHub**: Push this repository to your GitHub account.
+2. **Deploy on Railway**: 
+   - Go to [Railway](https://railway.app/) and choose **Deploy from GitHub repo**.
+3. **Add Database**:
+   - Add a new **PostgreSQL** service to your Railway project.
+4. **Environment Variables**:
+   - In your Web App service variables, add `DATABASE_URL` (Reference the Postgres service).
+   - Add `NEXTAUTH_SECRET` with a long random string.
+   - Add `NEXTAUTH_URL` with your Railway public domain.
+5. Railway will automatically build the app and push the database schema using the `build` script.
 
-3. **Enjoy!**
-   - The first user who registers will automatically be granted the `ADMIN` role to manage projects. Subsequent users will be `MEMBER`s.
+## Notes
+- The first user who registers will automatically be granted the `ADMIN` role to manage projects. Subsequent users will be `MEMBER`s.
