@@ -7,13 +7,13 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const { id } = await params;
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
@@ -33,6 +33,7 @@ export async function GET(
 
     return NextResponse.json(project);
   } catch (error) {
+    console.error('[GET /api/projects/[id]] ERROR:', error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
@@ -41,18 +42,19 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as any).role !== 'ADMIN') {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const { id } = await params;
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     await prisma.project.delete({
       where: { id }
     });
     return NextResponse.json({ message: "Deleted" });
   } catch (error) {
+    console.error('[DELETE /api/projects/[id]] ERROR:', error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }

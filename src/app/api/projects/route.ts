@@ -4,15 +4,15 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = (session.user as any).id;
-  const role = (session.user as any).role;
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = (session.user as any).id;
+    const role = (session.user as any).role;
+
     let projects;
     if (role === 'ADMIN') {
       // Admin sees all projects they own or are member of
@@ -42,19 +42,19 @@ export async function GET(req: Request) {
 
     return NextResponse.json(projects);
   } catch (error) {
+    console.error('[GET /api/projects] ERROR:', error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as any).role !== 'ADMIN') {
-    return NextResponse.json({ message: "Unauthorized - Admin only" }, { status: 401 });
-  }
-
-  const userId = (session.user as any).id;
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ message: "Unauthorized - Admin only" }, { status: 401 });
+    }
+
+    const userId = (session.user as any).id;
     const { name, description, memberIds } = await req.json();
 
     if (!name) {
@@ -77,6 +77,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
+    console.error('[POST /api/projects] ERROR:', error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
