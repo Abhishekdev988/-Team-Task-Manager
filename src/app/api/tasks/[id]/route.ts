@@ -7,16 +7,16 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = (session.user as any).id;
-  const role = (session.user as any).role;
-
   try {
+    const { id } = await params;
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = (session.user as any).id;
+    const role = (session.user as any).role;
+
     const { status, title, description, assigneeId } = await req.json();
 
     const existingTask = await prisma.task.findUnique({ where: { id } });
@@ -29,7 +29,7 @@ export async function PUT(
 
     const updateData: any = {};
     if (status) updateData.status = status;
-    
+
     // Admins can update everything
     if (role === 'ADMIN') {
       if (title) updateData.title = title;
@@ -44,6 +44,7 @@ export async function PUT(
 
     return NextResponse.json(task);
   } catch (error) {
+    console.error('[PUT /api/tasks/[id]] ERROR:', error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
@@ -52,16 +53,17 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as any).role !== 'ADMIN') {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const { id } = await params;
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     await prisma.task.delete({ where: { id } });
     return NextResponse.json({ message: "Deleted" });
   } catch (error) {
+    console.error('[DELETE /api/tasks/[id]] ERROR:', error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
